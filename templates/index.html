@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Person ROI Detection Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #1a1a1a;
+            color: white;
+            text-align: center;
+            padding: 20px;
+        }
+        h1 { color: #ff4d4d; }
+        .video-container {
+            margin: 20px auto;
+            border: 3px solid #444;
+            width: 660px;
+        }
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 20px;
+        }
+        .stat-box {
+            background: #2a2a2a;
+            padding: 15px 25px;
+            border-radius: 8px;
+            min-width: 120px;
+        }
+        .stat-value {
+            font-size: 28px;
+            font-weight: bold;
+        }
+        .alert-active {
+            background: #cc0000 !important;
+            animation: pulse 1s infinite;
+        }
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.6; }
+            100% { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <h1>🎯 Person ROI Detection System</h1>
+
+    <div class="video-container">
+        <img src="{{ url_for('video_feed') }}" width="100%">
+    </div>
+
+    <div class="stats">
+        <div class="stat-box">
+            <div>People Detected</div>
+            <div class="stat-value" id="person-count">0</div>
+        </div>
+        <div class="stat-box" id="alert-box">
+            <div>In Restricted Zone</div>
+            <div class="stat-value" id="alert-count">0</div>
+        </div>
+        <div class="stat-box">
+            <div>FPS</div>
+            <div class="stat-value" id="fps">0</div>
+        </div>
+    </div>
+
+    <script>
+        function updateStats() {
+            fetch('/stats')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('person-count').innerText = data.person_count;
+                    document.getElementById('alert-count').innerText = data.alert_count;
+                    document.getElementById('fps').innerText = data.fps;
+
+                    const alertBox = document.getElementById('alert-box');
+                    if (data.alert) {
+                        alertBox.classList.add('alert-active');
+                    } else {
+                        alertBox.classList.remove('alert-active');
+                    }
+                });
+        }
+
+        setInterval(updateStats, 500);  // poll every 0.5 seconds
+    </script>
+</body>
+</html>
